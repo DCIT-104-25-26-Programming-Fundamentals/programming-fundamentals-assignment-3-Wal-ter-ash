@@ -68,5 +68,158 @@
 // YOUR CODE BELOW — remove the // symbols from the scaffold and fill it in
 // =============================================================================
 
-const readlineSync = require('readline-sync');
+const readlineSync = require("readline-sync");
 
+function readDimensions(title) {
+  console.log(title);
+  const rows = readlineSync.questionInt("Enter number of rows: ");
+  const cols = readlineSync.questionInt("Enter number of columns: ");
+
+  if (rows <= 0 || cols <= 0) {
+    console.log("Error: Number of rows and columns must be positive integers.");
+    process.exit(1);
+  }
+
+  return { rows, cols };
+}
+
+function readMatrix(rows, cols) {
+  const matrix = [];
+
+  for (let i = 0; i < rows; i += 1) {
+    const rowInput = readlineSync.question(`Enter row ${i + 1}: `);
+    const row = rowInput.trim().split(/\s+/).map(Number);
+
+    if (row.length !== cols) {
+      console.log(`Error: Row ${i + 1} must contain exactly ${cols} values.`);
+      process.exit(1);
+    }
+
+    matrix.push(row);
+  }
+
+  return matrix;
+}
+
+function transposeMatrix(matrix) {
+  const rows = matrix.length;
+  const cols = matrix[0].length;
+  const result = [];
+
+  for (let j = 0; j < cols; j += 1) {
+    const newRow = [];
+
+    for (let i = 0; i < rows; i += 1) {
+      newRow.push(matrix[i][j]);
+    }
+
+    result.push(newRow);
+  }
+
+  return result;
+}
+
+function addMatrices(matrixA, matrixB) {
+  const rows = matrixA.length;
+  const cols = matrixA[0].length;
+  const result = [];
+
+  for (let i = 0; i < rows; i += 1) {
+    const newRow = [];
+
+    for (let j = 0; j < cols; j += 1) {
+      newRow.push(matrixA[i][j] + matrixB[i][j]);
+    }
+
+    result.push(newRow);
+  }
+
+  return result;
+}
+
+function multiplyMatrices(matrixA, matrixB) {
+  const rowsA = matrixA.length;
+  const colsA = matrixA[0].length;
+  const colsB = matrixB[0].length;
+  const result = [];
+
+  for (let i = 0; i < rowsA; i += 1) {
+    const newRow = [];
+
+    for (let j = 0; j < colsB; j += 1) {
+      let sum = 0;
+
+      for (let k = 0; k < colsA; k += 1) {
+        sum += matrixA[i][k] * matrixB[k][j];
+      }
+
+      newRow.push(sum);
+    }
+
+    result.push(newRow);
+  }
+
+  return result;
+}
+
+function formatMatrix(matrix) {
+  const width = matrix.reduce((maxWidth, row) => {
+    return row.reduce((rowMax, value) => {
+      const length = String(value).length;
+      return length > rowMax ? length : rowMax;
+    }, maxWidth);
+  }, 0);
+
+  return matrix
+    .map((row) => row.map((value) => String(value).padStart(width)).join(" "))
+    .join("\n");
+}
+
+function main() {
+  const dimsA = readDimensions("Part A — Transpose a Matrix");
+  const matrixA = readMatrix(dimsA.rows, dimsA.cols);
+  const transposed = transposeMatrix(matrixA);
+
+  console.log("\nOriginal Matrix:");
+  console.log(formatMatrix(matrixA));
+  console.log("\nTransposed Matrix:");
+  console.log(formatMatrix(transposed));
+
+  const dimsB = readDimensions("\nPart B — Add Two Matrices");
+  console.log("Enter values for Matrix 1:");
+  const matrixB1 = readMatrix(dimsB.rows, dimsB.cols);
+  console.log("Enter values for Matrix 2:");
+  const matrixB2 = readMatrix(dimsB.rows, dimsB.cols);
+  const sumMatrix = addMatrices(matrixB1, matrixB2);
+
+  console.log("\nMatrix 1:");
+  console.log(formatMatrix(matrixB1));
+  console.log("\nMatrix 2:");
+  console.log(formatMatrix(matrixB2));
+  console.log("\nSum Matrix:");
+  console.log(formatMatrix(sumMatrix));
+
+  console.log("\nPart C — Multiply Two Matrices");
+  const dimsC1 = readDimensions("Matrix A");
+  const matrixC1 = readMatrix(dimsC1.rows, dimsC1.cols);
+  const dimsC2 = readDimensions("Matrix B");
+
+  if (dimsC1.cols !== dimsC2.rows) {
+    console.log(
+      "Error: Number of columns in Matrix A must equal number of rows in Matrix B.",
+    );
+    process.exit(1);
+  }
+
+  const matrixC2 = readMatrix(dimsC2.rows, dimsC2.cols);
+  const productMatrix = multiplyMatrices(matrixC1, matrixC2);
+
+  console.log("\nMatrix A:");
+  console.log(formatMatrix(matrixC1));
+  console.log("\nMatrix B:");
+  console.log(formatMatrix(matrixC2));
+  console.log("\nProduct Matrix:");
+  console.log(formatMatrix(productMatrix));
+}
+
+main();
